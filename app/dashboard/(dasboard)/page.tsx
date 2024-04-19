@@ -1,9 +1,17 @@
-import React from "react";
+import Image from "next/image";
 
 export default function Dashboard() {
 	return (
-		<div>
-			<h1>Dashboard</h1>
-		</div>
+		<div className='flex flex-col justify-center items-center h-full'>
+      <Image
+        src='/Home.png'
+        alt='Next.js Logo'
+        className='mb-10 rounded-xl'
+        width={800}
+        height={800}
+        priority
+      />
+      <h1 className='text-6xl font-bold'>What&apos;s up brother?</h1>
+    </div>
 	);
 }
