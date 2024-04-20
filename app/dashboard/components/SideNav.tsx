@@ -6,12 +6,19 @@ import ModeToggle from '../todo/components/ToggleDarkMode';
 import { Button } from '@/components/ui/button';
 import SignOut from './SignOut';
 import Link from 'next/link';
+import { readUserSession } from '@/lib/actions';
 
-export default function SideNav({ email }: { email?: string }) {
+export default async function SideNav({ email }: { email?: string }) {
+  const { data: userSession } = await readUserSession();
+  const user = userSession.session?.user;
+  const isAdmin =
+    user?.user_metadata.role === 'admin' || user?.email === 'admin@gmail.com';
+
   return (
     <SideBar
       className=' hidden lg:block dark:bg-graident-dark flex-1'
       email={email!}
+      isAdmin={isAdmin}
     />
   );
 }
@@ -19,9 +26,11 @@ export default function SideNav({ email }: { email?: string }) {
 export const SideBar = ({
   className,
   email,
+  isAdmin,
 }: {
   className?: string;
   email?: string;
+  isAdmin?: boolean;
 }) => {
   return (
     <div className={className}>
@@ -43,7 +52,7 @@ export const SideBar = ({
               You are logged in as <b>{email}</b>
             </h1>
           </div>
-          <NavLinks />
+          <NavLinks isAdmin={isAdmin} />
         </div>
         <div className=''>
           <SignOut />

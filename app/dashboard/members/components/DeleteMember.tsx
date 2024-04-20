@@ -11,7 +11,8 @@ const DeleteMember = ({ user_id }: { user_id: string }) => {
   const onSubmit = async () => {
     startTransition(async () => {
       const result = await deleteMemberById(user_id);
-      const { error } = JSON.parse(result);
+      const parsedResult = result ? JSON.parse(result) : null;
+      const { error } = parsedResult || {};
 
       if (error) {
         toast({
@@ -32,7 +33,7 @@ const DeleteMember = ({ user_id }: { user_id: string }) => {
 
   return (
     <form action={onSubmit}>
-      <Button variant='outline'>
+      <Button variant='outline' className='gap-2'>
         <TrashIcon />
         Delete
       </Button>

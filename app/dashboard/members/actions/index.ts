@@ -49,7 +49,7 @@ export async function createMember(data: {
       await supabase.from('permission').insert(permissionData),
     ]);
 
-    console.log(member, permission);
+    console.log('Status:', { member, permission });
 
     revalidatePath('/dashboard/members');
 
@@ -79,7 +79,7 @@ export async function deleteMemberById(user_id: string) {
       .single();
 
     console.log({ deleteResult, memberData });
-    
+
     revalidatePath('/dashboard/members');
 
     return JSON.stringify(memberData);

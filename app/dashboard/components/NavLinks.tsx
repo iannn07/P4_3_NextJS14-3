@@ -1,49 +1,53 @@
-"use client";
-import React from "react";
-import { PersonIcon, CrumpledPaperIcon, HomeIcon } from "@radix-ui/react-icons";
-import Link from "next/link";
-import { cn } from "@/lib/utils";
-import { usePathname } from "next/navigation";
+'use client';
+import React from 'react';
+import { PersonIcon, CrumpledPaperIcon, HomeIcon } from '@radix-ui/react-icons';
+import Link from 'next/link';
+import { cn } from '@/lib/utils';
+import { usePathname } from 'next/navigation';
 
-export default function NavLinks() {
-	const pathname = usePathname();
+export default function NavLinks({ isAdmin }: { isAdmin?: boolean }) {
+  const pathname = usePathname();
 
-	const links = [
-		{
-			href: "/dashboard",
-			text: "Home",
-			Icon: HomeIcon,
-		},
-		{
-			href: "/dashboard/members",
-			text: "Members",
-			Icon: PersonIcon,
-		},
-		{
-			href: "/dashboard/todo",
-			text: "Todo",
-			Icon: CrumpledPaperIcon,
-		},
-	];
+  const links = [
+    {
+      href: '/dashboard',
+      text: 'Home',
+      Icon: HomeIcon,
+    },
+    {
+      href: '/dashboard/members',
+      text: 'Members',
+      Icon: PersonIcon,
+    },
+    {
+      href: '/dashboard/todo',
+      text: 'Todo',
+      Icon: CrumpledPaperIcon,
+    },
+  ];
 
 	return (
-		<div className="space-y-5">
+		<div className='space-y-5'>
 			{links.map((link, index) => {
 				const Icon = link.Icon;
+
+				// Skip rendering the Members link if user is not an admin
+				if (!isAdmin && link.href === '/dashboard/members') {
+					return null; 
+				}
+				if (isAdmin && link.href === '/dashboard/todo') {
+					return null; 
+				}
+
 				return (
 					<Link
-						onClick={() =>
-							document.getElementById("sidebar-close")?.click()
-						}
+						onClick={() => document.getElementById('sidebar-close')?.click()}
 						href={link.href}
 						key={index}
-						className={cn(
-							"flex items-center gap-2 rounded-sm p-2",
-							{
-								" bg-green-500 dark:bg-green-700 text-white ":
-									pathname === link.href,
-							}
-						)}
+						className={cn('flex items-center gap-2 rounded-sm p-2', {
+							' bg-green-500 dark:bg-green-700 text-white ':
+								pathname === link.href,
+						})}
 					>
 						<Icon />
 						{link.text}

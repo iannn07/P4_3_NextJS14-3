@@ -10,7 +10,7 @@ export default function EditMember({ isAdmin }: { isAdmin: boolean }) {
       id='update-trigger'
       title='Edit Member'
       Trigger={
-        <Button variant='outline'>
+        <Button variant='outline' className='gap-2'>
           <Pencil1Icon />
           Edit
         </Button>

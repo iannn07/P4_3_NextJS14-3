@@ -3,9 +3,14 @@ import MemberTable from './components/MemberTable';
 import SearchMembers from './components/SearchMembers';
 import CreateMember from './components/create/CreateMember';
 import useUserStore from '@/lib/store/user';
+import { readUserSession } from '@/lib/actions';
 
-export default function Members() {
-  const user = useUserStore.getState().user;
+export default async function Members() {
+  // This method is faster rather than using Zustand yk
+  const { data: userSession } = await readUserSession();
+
+  // const user = useUserStore.getState().user;
+  const user = userSession.session?.user;
   const isAdmin =
     user?.user_metadata.role === 'admin' || user?.email === 'admin@gmail.com';
 
