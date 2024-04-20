@@ -3,8 +3,15 @@ import DialogForm from '../DialogForm';
 import { Button } from '@/components/ui/button';
 import { Pencil1Icon } from '@radix-ui/react-icons';
 import EditForm from './EditorForm';
+import { Permission } from '@/lib/types';
 
-export default function EditMember({ isAdmin }: { isAdmin: boolean }) {
+export default function EditMember({
+  isAdmin,
+  permission,
+}: {
+  isAdmin: boolean;
+  permission: Permission;
+}) {
   return (
     <DialogForm
       id='update-trigger'
@@ -15,7 +22,7 @@ export default function EditMember({ isAdmin }: { isAdmin: boolean }) {
           Edit
         </Button>
       }
-      form={<EditForm isAdmin={isAdmin} />}
+      form={<EditForm isAdmin={isAdmin} permission={permission} />}
     />
   );
 }

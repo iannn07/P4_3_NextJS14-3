@@ -34,6 +34,7 @@ export async function createMember(data: {
     });
 
     const memberData = {
+      email: data.email,
       name: data.name,
       id: result.data.user?.id,
     };
@@ -58,9 +59,127 @@ export async function createMember(data: {
     return JSON.stringify(error);
   }
 }
-export async function updateMemberById(id: string) {
-  console.log('update member');
+
+export async function updateBasicMemberById(
+  id: string,
+  data: { name: string }
+) {
+  try {
+    console.log(data);
+    const supabase = await createSupabaseServerClient();
+
+    const result = await supabase
+      .from('members')
+      .update({ name: data.name })
+      .eq('id', id)
+      .single();
+
+    console.log(result);
+
+    revalidatePath('/dashboard/members');
+
+    return JSON.stringify(result);
+  } catch (error) {
+    return JSON.stringify(error);
+  }
 }
+
+export async function updateAccountMemberById(
+  user_id: string,
+  data: {
+    email: string;
+    password?: string | undefined;
+    confirm?: string | undefined;
+  }
+) {
+  const { data: userSession } = await readUserSession();
+
+  if (userSession.session?.user.user_metadata.role !== 'admin') {
+    return JSON.stringify({ error: 'Unauthorized' });
+  }
+
+  try {
+    console.log({ data });
+    // Update Supabase User Metadata
+    const supabaseAdmin = await createSupabaseAdmin();
+
+    const userData: {
+      email: string;
+      password?: string | undefined;
+      email_confirm: boolean;
+    } = {
+      email: data.email,
+      email_confirm: true,
+    };
+
+    if (data.password) {
+      userData.password = data.password;
+    }
+
+    const result = await supabaseAdmin.auth.admin.updateUserById(user_id, {
+      ...userData,
+    });
+
+    // Update Supabase Member Data
+    const supabase = await createSupabaseServerClient();
+
+    const dbResult = await supabase
+      .from('members')
+      .update({ email: data.email })
+      .eq('id', user_id)
+      .single();
+
+    console.log({ result, dbResult });
+
+    revalidatePath('/dashboard/members');
+
+    return JSON.stringify(dbResult);
+  } catch (error) {
+    return JSON.stringify(error);
+  }
+}
+
+export async function updateAdvancedMemberById(
+  id: string,
+  user_id: string,
+  data: { role: 'user' | 'admin'; status: 'active' | 'resigned' }
+) {
+  const { data: userSession } = await readUserSession();
+
+  if (userSession.session?.user.user_metadata.role !== 'admin') {
+    return JSON.stringify({ error: 'Unauthorized' });
+  }
+
+  try {
+    console.log({ data });
+    // Update Supabase User Metadata
+    const supabaseAdmin = await createSupabaseAdmin();
+
+    const result = await supabaseAdmin.auth.admin.updateUserById(user_id, {
+      user_metadata: {
+        role: data.role,
+      },
+    });
+
+    // Update Supabase Member Data
+    const supabase = await createSupabaseServerClient();
+
+    const dbResult = await supabase
+      .from('permission')
+      .update({ role: data.role, status: data.status })
+      .eq('id', id)
+      .single();
+
+    console.log({ result, dbResult });
+
+    revalidatePath('/dashboard/members');
+
+    return JSON.stringify(dbResult);
+  } catch (error) {
+    return JSON.stringify(error);
+  }
+}
+
 export async function deleteMemberById(user_id: string) {
   const { data: userSession } = await readUserSession();
 
@@ -87,14 +206,11 @@ export async function deleteMemberById(user_id: string) {
     return JSON.stringify(error);
   }
 }
+
 export async function readMembers() {
   unstable_noStore();
-
   const supabase = await createSupabaseServerClient();
-  const result = await supabase
-    .from('permission')
-    .select('*, members(*)')
-    .order('created_at', { ascending: false });
+  const result = await supabase.from('permission').select('*, members(*)');
 
   return result;
 }

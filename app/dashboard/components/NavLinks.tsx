@@ -31,10 +31,6 @@ export default function NavLinks({ isAdmin }: { isAdmin?: boolean }) {
 			{links.map((link, index) => {
 				const Icon = link.Icon;
 
-				// Skip rendering the Members link if user is not an admin
-				if (!isAdmin && link.href === '/dashboard/members') {
-					return null; 
-				}
 				if (isAdmin && link.href === '/dashboard/todo') {
 					return null; 
 				}
