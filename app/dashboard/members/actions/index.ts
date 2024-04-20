@@ -1,7 +1,10 @@
 'use server';
 
 import { readUserSession } from '@/lib/actions';
-import { createSupabaseAdmin, createSupabaseServerClient } from '@/lib/supabase';
+import {
+  createSupabaseAdmin,
+  createSupabaseServerClient,
+} from '@/lib/supabase';
 import { revalidatePath, unstable_noStore } from 'next/cache';
 
 export async function createMember(data: {
@@ -12,7 +15,7 @@ export async function createMember(data: {
   status: 'active' | 'resigned';
   confirm: string;
 }) {
-  const {data: userSession} = await readUserSession();
+  const { data: userSession } = await readUserSession();
 
   if (userSession.session?.user.user_metadata.role !== 'admin') {
     return JSON.stringify({ error: 'Unauthorized' });
@@ -20,7 +23,7 @@ export async function createMember(data: {
 
   try {
     const supabase = await createSupabaseAdmin();
-    
+
     const result = await supabase.auth.admin.createUser({
       email: data.email,
       password: data.password,
@@ -58,12 +61,40 @@ export async function createMember(data: {
 export async function updateMemberById(id: string) {
   console.log('update member');
 }
-export async function deleteMemberById(id: string) {}
+export async function deleteMemberById(user_id: string) {
+  const { data: userSession } = await readUserSession();
+
+  if (userSession.session?.user.user_metadata.role !== 'admin') {
+    return JSON.stringify({ error: 'Unauthorized' });
+  }
+
+  try {
+    const supabase = await createSupabaseAdmin();
+    const deleteResult = await supabase.auth.admin.deleteUser(user_id);
+
+    const { data: memberData } = await supabase
+      .from('members')
+      .delete()
+      .eq('id', user_id)
+      .single();
+
+    console.log({ deleteResult, memberData });
+    
+    revalidatePath('/dashboard/members');
+
+    return JSON.stringify(memberData);
+  } catch (error) {
+    return JSON.stringify(error);
+  }
+}
 export async function readMembers() {
   unstable_noStore();
 
   const supabase = await createSupabaseServerClient();
-  const result = await supabase.from('permission').select('*, members(*)').order('created_at', { ascending: false });
+  const result = await supabase
+    .from('permission')
+    .select('*, members(*)')
+    .order('created_at', { ascending: false });
 
   return result;
 }
