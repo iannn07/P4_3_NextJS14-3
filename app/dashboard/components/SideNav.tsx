@@ -7,11 +7,22 @@ import { Button } from '@/components/ui/button';
 import SignOut from './SignOut';
 import Link from 'next/link';
 
-export default function SideNav() {
-  return <SideBar className=' hidden lg:block dark:bg-graident-dark flex-1' />;
+export default function SideNav({ email }: { email?: string }) {
+  return (
+    <SideBar
+      className=' hidden lg:block dark:bg-graident-dark flex-1'
+      email={email!}
+    />
+  );
 }
 
-export const SideBar = ({ className }: { className?: string }) => {
+export const SideBar = ({
+  className,
+  email,
+}: {
+  className?: string;
+  email?: string;
+}) => {
   return (
     <div className={className}>
       <div
@@ -26,6 +37,11 @@ export const SideBar = ({ className }: { className?: string }) => {
             </Link>
 
             <ModeToggle />
+          </div>
+          <div>
+            <h1>
+              You are logged in as <b>{email}</b>
+            </h1>
           </div>
           <NavLinks />
         </div>

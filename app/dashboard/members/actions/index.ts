@@ -1,8 +1,8 @@
 'use server';
 
 import { readUserSession } from '@/lib/actions';
-import { createSupabaseAdmin } from '@/lib/supabase';
-import { revalidatePath } from 'next/cache';
+import { createSupabaseAdmin, createSupabaseServerClient } from '@/lib/supabase';
+import { revalidatePath, unstable_noStore } from 'next/cache';
 
 export async function createMember(data: {
   email: string;
@@ -59,4 +59,11 @@ export async function updateMemberById(id: string) {
   console.log('update member');
 }
 export async function deleteMemberById(id: string) {}
-export async function readMembers() {}
+export async function readMembers() {
+  unstable_noStore();
+
+  const supabase = await createSupabaseServerClient();
+  const result = await supabase.from('permission').select('*, members(*)').order('created_at', { ascending: false });
+
+  return result;
+}

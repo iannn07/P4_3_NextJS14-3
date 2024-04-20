@@ -9,7 +9,7 @@ import {
 
 import React, { ReactNode } from "react";
 
-export default function DailogForm({
+export default function DialogForm({
 	Trigger,
 	id,
 	title,
